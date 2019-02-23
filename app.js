@@ -1,12 +1,23 @@
 require("dotenv").config();
 
 const express = require("express");
+const cors = require("cors");
 const asyncHandler = require("express-async-handler");
 const axios = require("axios");
 const parseString = require("xml2js").parseString;
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://mylibrary.cool",
+      "https://www.mylibrary.cool"
+    ]
+  })
+);
 
 app.get("/", (req, res) => res.send({ hello: "world" }));
 

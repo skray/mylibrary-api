@@ -7,12 +7,15 @@
     "precommit": "lint-staged",
     "lint": "eslint . --fix",
     "build": "zip -r -X build/mylibrary-api.zip app.js package.json .ebextensions",
+    "predeploy": "npm run build",
+    "deploy": "eb deploy --staged",
     "start": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.18.0",
+    "cors": "^2.8.5",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "express-async-handler": "^1.1.4",
