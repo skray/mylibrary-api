@@ -1,0 +1,36 @@
+{
+  "name": "mylibrary-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "precommit": "lint-staged",
+    "lint": "eslint . --fix",
+    "build": "zip -r -X build/mylibrary-api.zip app.js package.json .ebextensions",
+    "start": "nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "express-async-handler": "^1.1.4",
+    "xml2js": "^0.4.19"
+  },
+  "devDependencies": {
+    "eslint": "^5.14.1",
+    "eslint-config-prettier": "^4.0.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "husky": "^1.3.1",
+    "lint-staged": "^8.1.4",
+    "nodemon": "^1.18.10",
+    "prettier": "^1.16.4"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint . --fix",
+      "git add ."
+    ]
+  }
+}

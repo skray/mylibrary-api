@@ -1,0 +1,16 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 8,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true
+    }
+  },
+  "env": {
+    "node": true
+  },
+  "globals": {
+    "Promise": true
+  },
+  "extends": ["plugin:prettier/recommended","eslint:recommended"]
+} 
