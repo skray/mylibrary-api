@@ -4,10 +4,10 @@ const express = require("express");
 const cors = require("cors");
 const asyncHandler = require("express-async-handler");
 const axios = require("axios");
-const parseString = require("xml2js").parseString;
+const xml2js = require("xml2js");
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8000;
 
 app.use(
   cors({
@@ -35,9 +35,15 @@ app.get(
       }
     );
 
-    parseString(
+    xml2js.parseString(
       searchResults.data,
-      { ignoreAttrs: true, explicitArray: false },
+      {
+        ignoreAttrs: true,
+        explicitArray: false,
+        trim: true,
+        emptyTag: null,
+        valueProcessors: [xml2js.processors.parseNumbers]
+      },
       function(err, result) {
         res.json(result.GoodreadsResponse.search);
       }
