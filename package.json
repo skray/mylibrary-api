@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "precommit": "lint-staged",
     "lint": "eslint . --fix",
     "build": "zip -r -X build/mylibrary-api.zip app.js package.json .ebextensions",
     "predeploy": "npm run build",
@@ -35,9 +34,11 @@
     "prettier": "^1.16.4"
   },
   "lint-staged": {
-    "*.js": [
-      "eslint . --fix",
-      "git add ."
-    ]
+    "*.js": ["eslint --fix", "git add"]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }
