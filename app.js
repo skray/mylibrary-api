@@ -6,7 +6,7 @@ const asyncHandler = require("express-async-handler");
 const axios = require("axios");
 const xml2js = require("xml2js");
 const uuidv4 = require("uuid/v4");
-let bodyParser = require("body-parser");
+const bodyParser = require("body-parser");
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -52,7 +52,8 @@ app.post(
       Item: {
         id: uuidv4(),
         title: req.body.title
-      }
+      },
+      ConditionExpression: "attribute_not_exists(id)"
     };
     docClient.put(book, function(err) {
       if (err) {
@@ -70,6 +71,94 @@ app.post(
           }
           res.status(201).json(data.Item);
         });
+      }
+    });
+  })
+);
+
+app.get(
+  "/my-books/:id",
+  asyncHandler(async (req, res, next) => {
+    const params = {
+      TableName: "mybooks",
+      Key: {
+        id: req.params.id
+      }
+    };
+    docClient.get(params, function(err, data) {
+      if (err) {
+        return next(err);
+      } else {
+        if (data.Item) {
+          return res.json(data.Item);
+        } else {
+          return res.status(404).json({ message: "not found" });
+        }
+      }
+    });
+  })
+);
+
+app.put(
+  "/my-books/:id",
+  asyncHandler(async (req, res, next) => {
+    const getParams = {
+      TableName: "mybooks",
+      Key: {
+        id: req.params.id
+      }
+    };
+
+    docClient.get(getParams, function(err, data) {
+      if (err) {
+        return next(err);
+      } else {
+        if (!data.Item) {
+          return res.status(404).json({ message: "not found" });
+        }
+
+        let updatedBook = {
+          id: req.params.id,
+          title: req.body.title
+        };
+        docClient.put(
+          {
+            TableName: "mybooks",
+            Item: updatedBook
+          },
+          function(err) {
+            if (err) {
+              return next(err);
+            } else {
+              return res.json(updatedBook);
+            }
+          }
+        );
+      }
+    });
+  })
+);
+
+app.del(
+  "/my-books/:id",
+  asyncHandler(async (req, res, next) => {
+    const deleteParams = {
+      TableName: "mybooks",
+      Key: {
+        id: req.params.id
+      },
+      ConditionExpression: "attribute_exists(id)"
+    };
+
+    docClient.delete(deleteParams, function(err) {
+      if (err) {
+        if (err.name === "ConditionalCheckFailedException") {
+          return res.status(404).json({ message: "not found" });
+        } else {
+          return next(err);
+        }
+      } else {
+        return res.status(204).send();
       }
     });
   })
