@@ -12,8 +12,8 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 AWS.config.update({
-  region: "us-west-2",
-  endpoint: "http://localhost:8000"
+  region: "us-west-1",
+  endpoint: process.env.DYNAMODB_ENDPOINT
 });
 
 const docClient = new AWS.DynamoDB.DocumentClient();
