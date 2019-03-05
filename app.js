@@ -7,6 +7,7 @@ const axios = require("axios");
 const xml2js = require("xml2js");
 const uuidv4 = require("uuid/v4");
 const bodyParser = require("body-parser");
+const arrify = require("arrify");
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -51,7 +52,15 @@ app.post(
       TableName: "mybooks",
       Item: {
         id: uuidv4(),
-        title: req.body.title
+        title: req.body.title,
+        author: req.body.author,
+        publicationYear: req.body.publicationYear,
+        goodReads: {
+          bookId: req.body.goodReads.bookId,
+          authorId: req.body.goodReads.authorId,
+          imageUrl: req.body.goodReads.imageUrl,
+          rating: req.body.goodReads.rating
+        }
       },
       ConditionExpression: "attribute_not_exists(id)"
     };
@@ -119,7 +128,15 @@ app.put(
 
         let updatedBook = {
           id: req.params.id,
-          title: req.body.title
+          title: req.body.title,
+          author: req.body.author,
+          publicationYear: req.body.publicationYear,
+          goodReads: {
+            bookId: req.body.goodReads.bookId,
+            authorId: req.body.goodReads.authorId,
+            imageUrl: req.body.goodReads.imageUrl,
+            rating: req.body.goodReads.rating
+          }
         };
         docClient.put(
           {
@@ -139,7 +156,7 @@ app.put(
   })
 );
 
-app.del(
+app.delete(
   "/my-books/:id",
   asyncHandler(async (req, res, next) => {
     const deleteParams = {
@@ -191,8 +208,32 @@ app.get(
         if (err) {
           throw err;
         }
+
+        let response = {
+          totalResults: result.GoodreadsResponse.search["total-results"],
+          resultsStart: result.GoodreadsResponse.search["results-start"],
+          resultsEnd: result.GoodreadsResponse.search["results-end"]
+        };
+
+        if (!response.totalResults) {
+          response.books = [];
+        } else {
+          let works = arrify(result.GoodreadsResponse.search.results.work);
+          response.books = works.map(work => ({
+            title: work.best_book.title,
+            author: work.best_book.name,
+            publicationYear: work.original_publication_year,
+            goodReads: {
+              bookId: work.best_book.id,
+              authorId: work.best_book.author.id,
+              imageUrl: work.best_book.image_url,
+              rating: work.average_rating
+            }
+          }));
+        }
+
         res.set("Cache-Control", "private, max-age=86400");
-        res.json(result.GoodreadsResponse.search);
+        res.json(response);
       }
     );
   })
